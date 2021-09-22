@@ -122,6 +122,7 @@ public class Transaction {
          * 0-转账
          */
         TRANSFER(0, "转账"),
+        CONTRACT_EXEC_DESTROY(21, "合约销毁"),
         /**
          * 1-EVM合约发布(合约创建)
          */
