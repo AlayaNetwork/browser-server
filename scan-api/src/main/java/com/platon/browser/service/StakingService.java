@@ -218,7 +218,11 @@ public class StakingService {
                 logger.error("获取节点24小时出块率异常", e);
             }
             aliveStakingListResp.setDelegatedRewardRatio(new BigDecimal(staking.getRewardPer()).divide(Browser.PERCENTAGE).toString() + "%");
-            aliveStakingListResp.setVersion(ChainVersionUtil.toStringVersion(BigInteger.valueOf(staking.getProgramVersion())));
+            if (staking.getProgramVersion() != 0) {
+                aliveStakingListResp.setVersion(ChainVersionUtil.toStringVersion(BigInteger.valueOf(staking.getProgramVersion())));
+            } else {
+                aliveStakingListResp.setVersion(ChainVersionUtil.toStringVersion(BigInteger.valueOf(staking.getBigVersion())));
+            }
             lists.add(aliveStakingListResp);
             i++;
         }
@@ -465,10 +469,10 @@ public class StakingService {
                      */
                     case VERSION:
                         String v = desces[2];
-                        if(StringUtils.isNotBlank(v)){
-                            v=ChainVersionUtil.toStringVersion(new BigInteger(v));
+                        if (StringUtils.isNotBlank(v)) {
+                            v = ChainVersionUtil.toStringVersion(new BigInteger(v));
                         } else {
-                            v="0";
+                            v = "0";
                         }
                         stakingOptRecordListResp.setVersion(v);
                         stakingOptRecordListResp.setType("12");
