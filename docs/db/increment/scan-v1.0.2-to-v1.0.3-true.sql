@@ -1,4 +1,4 @@
-USE `scan_platon`;
+USE `scan_alaya`;
 ALTER TABLE `internal_address`
   ADD COLUMN `name` VARCHAR(64) DEFAULT '基金会地址'  NOT NULL   COMMENT '地址名称' FIRST,
   ADD COLUMN `is_show` TINYINT(1) DEFAULT 1  NOT NULL   COMMENT '是否用于展示  0-否 1-是' AFTER `restricting_balance`,
