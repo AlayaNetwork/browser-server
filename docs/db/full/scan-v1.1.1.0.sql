@@ -1,5 +1,5 @@
 -- 全量脚本
-CREATE DATABASE IF NOT EXISTS `scan_alaya` DEFAULT CHARACTER SET utf8mb4;
+CREATE DATABASE IF NOT EXISTS `scan_alaya` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE `scan_alaya`;
 
 DROP TABLE IF EXISTS `address`;
