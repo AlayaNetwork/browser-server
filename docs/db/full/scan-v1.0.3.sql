@@ -1,6 +1,6 @@
 -- 全量脚本
-CREATE DATABASE IF NOT EXISTS `scan_alaya` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE `scan_alaya`;
+CREATE DATABASE IF NOT EXISTS `scan_platon` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `scan_platon`;
 
 DROP TABLE IF EXISTS `address`;
 CREATE TABLE `address` (
@@ -399,8 +399,6 @@ CREATE TABLE `token` (
                          `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
                          `token_tx_qty` int(11) NOT NULL DEFAULT '0' COMMENT 'token对应的交易数',
                          `holder` int(11) NOT NULL DEFAULT '0' COMMENT 'token对应的持有人的数量',
-                         `contract_destroy_block` bigint(20) DEFAULT NULL COMMENT '合约的销毁块高',
-                         `contract_destroy_update` tinyint(1) NOT NULL DEFAULT '0' COMMENT '销毁的合约是否已更新显示在scan管理台，1为是，0为否，默认是0',
                          PRIMARY KEY (`address`),
                          UNIQUE KEY `token_address` (`address`)
 );
@@ -482,7 +480,7 @@ CREATE TABLE `internal_address` (
 -- 初始化数据
 -- 还有部分基金会地址由运维手工导入
 INSERT INTO `internal_address` (`address`,`type`)
-VALUES ('atp1zqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp8h9fxw', 1),
-       ('atp1zqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzfyslg3', 2),
-       ('atp1zqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqr5jy24r', 3),
-       ('atp1zqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqxxwje8t', 6);
+VALUES ('lat1zqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7pn3ep', 1),
+       ('lat1zqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzsjx8h7', 2),
+       ('lat1zqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqrdyjj2v', 3),
+       ('lat1zqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqxlcypcy', 6);
