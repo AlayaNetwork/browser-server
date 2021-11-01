@@ -33,7 +33,7 @@ import java.util.List;
 @Service
 public class CommonService {
 
-    public final static  BigDecimal ISSUE_VALUE = new BigDecimal("10250000000000000000000000000.0000");
+    public final static BigDecimal ISSUE_VALUE = new BigDecimal("110250000000000000000000000.0000");
 
     @Resource
     private CustomNodeMapper customNodeMapper;
