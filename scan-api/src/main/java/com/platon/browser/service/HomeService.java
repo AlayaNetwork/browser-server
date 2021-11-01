@@ -307,6 +307,11 @@ public class HomeService {
         }
         chainStatisticNewResp.setBlockList(lists);
         BigDecimal issueValue = commonService.getIssueValue();
+        log.info("获取总发行量[{}]", issueValue);
+
+        CommonService.check(issueValue);
+        issueValue = CommonService.ISSUE_VALUE;
+
         chainStatisticNewResp.setIssueValue(issueValue.abs());
         BigDecimal circulationValue = commonService.getCirculationValue();
         chainStatisticNewResp.setTurnValue(circulationValue);
@@ -349,8 +354,7 @@ public class HomeService {
                 stakingListResp.setExpectedIncome("");
             }
             /* 质押总数=有效的质押+委托 */
-            BigDecimal totalValue = nodes.get(i).getStakingHes().add(nodes.get(i).getStakingLocked())
-                    .add(nodes.get(i).getStatDelegateValue());
+            BigDecimal totalValue = nodes.get(i).getStakingHes().add(nodes.get(i).getStakingLocked()).add(nodes.get(i).getStatDelegateValue());
             stakingListResp.setTotalValue(totalValue);
             stakingListResp.setRanking(i + 1);
             lists.add(stakingListResp);
