@@ -33,7 +33,7 @@ import java.util.List;
 @Service
 public class CommonService {
 
-    public final static BigDecimal ISSUE_VALUE = new BigDecimal("110250000000000000000000000.0000");
+    public final static  BigDecimal ISSUE_VALUE = new BigDecimal("10250000000000000000000000000.0000");
 
     @Resource
     private CustomNodeMapper customNodeMapper;
@@ -247,12 +247,12 @@ public class CommonService {
         return stakingDenominator;
     }
 
-    public static void check(BigDecimal calculated) {
-        if (calculated == null) {
-            log.error("总发行量 check value error calculated is null");
+    public static void check( BigDecimal calculated){
+        if(calculated == null){
+            log.error("总发行量 check value error calculated is null" );
         }
 
-        if (calculated.compareTo(ISSUE_VALUE) != 0) {
+        if(calculated.compareTo(ISSUE_VALUE) != 0){
             log.error("总发行量 check value error calculated = {}  inner = {}", calculated, ISSUE_VALUE);
         }
     }

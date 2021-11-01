@@ -240,11 +240,9 @@ public class HomeService {
                 }
             }
             /* 第一个区块不需要计算出块时间 */
-            if (i == 0)
-                continue;
+            if (i == 0) continue;
             Block previousBlock = items.get(i - 1);
-            BigDecimal sec = BigDecimal.valueOf(previousBlock.getTime().getTime() - currentBlock.getTime().getTime())
-                    .divide(BigDecimal.valueOf(1000), 4, RoundingMode.FLOOR);
+            BigDecimal sec = BigDecimal.valueOf(previousBlock.getTime().getTime() - currentBlock.getTime().getTime()).divide(BigDecimal.valueOf(1000), 4, RoundingMode.FLOOR);
             ya[i - 1] = sec.doubleValue();
         }
         blockStatisticNewResp.setX(x);
@@ -256,8 +254,7 @@ public class HomeService {
     public ChainStatisticNewResp chainStatisticNew() {
         NetworkStat networkStatRedis = statisticCacheService.getNetworkStatCache();
         ChainStatisticNewResp chainStatisticNewResp = new ChainStatisticNewResp();
-        if (networkStatRedis == null)
-            return chainStatisticNewResp;
+        if (networkStatRedis == null) return chainStatisticNewResp;
         /* 查询redis统计信息并转换对应返回对象 */
         BeanUtils.copyProperties(networkStatRedis, chainStatisticNewResp);
         chainStatisticNewResp.setCurrentTps(networkStatRedis.getCurTps());
