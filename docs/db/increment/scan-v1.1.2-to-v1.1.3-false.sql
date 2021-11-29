@@ -1,2 +1,2 @@
-USE `scan_platon`;
+USE `scan_alaya`;
 ALTER TABLE network_stat add COLUMN `year_num` int(11) DEFAULT 1 COMMENT '年份';
