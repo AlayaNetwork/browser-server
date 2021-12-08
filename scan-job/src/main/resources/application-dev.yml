@@ -1,5 +1,53 @@
 #1.1.4配置已经迁移到apollo，以下配置为模板
-profile: platon
+jasypt:
+  encryptor:
+    password: ${JASYPT_ENCRYPTOR_PASSWORD:}
+logging:
+  level:
+    com:
+      platon:
+        browser:
+          task: debug
+    org:
+      springframework: error
+mybatis:
+  mapper-locations: classpath*:mapper/*.xml,classpath*:custommapper/*.xml
+  type-aliases-package: com.platon.browser.dao.entity
+platon:
+  addIssueRate: 0.05
+  addressPrefix: atp
+  chainId: 201018
+  defaultStakingLockedAmount: 10500
+  electionBackwardBlockCount: 20
+  es-namespace: browser_${profile}
+  foundationSubsidies:
+    '1': 0
+    '2': 0
+    '3': 0
+    '4': 0
+    '5': 0
+    '6': 0
+    '7': 0
+    '8': 0
+    '9': 0
+  incentiveRateFromIssue: 0.4
+  initIssueAmount: 100000000
+  keyBase: https://keybase.io/
+  keyBaseApi: _/api/1.0/user/lookup.json?key_suffix=
+  maxBlockGasLimit: 201600000
+  maxSettlePeriodCount4AnnualizedRateStat: 4
+  paging:
+    erc20-transaction:
+      pageCount: 250
+      pageSize: 2000
+  proposalPipNumTemplate: AIP-%s
+  proposalUrlTemplate: https://github.com/AlayaNetwork/AIPs/tree/master/Alaya/AIP-%s.md
+  txLogDecodeThreadNum: 200
+  valueUnit: ATP
+  web3j:
+    addresses: 192.168.112.141:7789,192.168.112.141:7790
+    protocol: WS
+profile: alaya
 spring:
   application:
     name: scan-job
@@ -7,7 +55,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     password: ENC(bpshgjWOgn2d+oGmSTBPNA==)
     type: com.alibaba.druid.pool.DruidDataSource
-    url: jdbc:mysql://192.168.9.191:3306/scan_platonhyp?useUnicode=true&characterEncoding=utf-8&useSSL=false&useTimezone=true&serverTimezone=GMT%2B8&allowMultiQueries=true
+    url: jdbc:mysql://192.168.9.191:3306/alaya_browser_hrpatp201018v10000?useUnicode=true&characterEncoding=utf-8&useSSL=false&useTimezone=true&serverTimezone=GMT%2B8&allowMultiQueries=true
     username: ENC(bpshgjWOgn2d+oGmSTBPNA==)
   elasticsearch:
     high-level-client:
@@ -38,51 +86,3 @@ xxl:
       logpath: ./logs/jobhandler
       logretentiondays: 90
       port: 9997
-jasypt:
-  encryptor:
-    password: my123456
-logging:
-  level:
-    com:
-      platon:
-        browser:
-          task: debug
-    org:
-      springframework: error
-mybatis:
-  mapper-locations: classpath*:mapper/*.xml,classpath*:custommapper/*.xml
-  type-aliases-package: com.platon.browser.dao.entity
-platon:
-  addIssueRate: 0.025
-  addressPrefix: lat
-  chainId: 100
-  defaultStakingLockedAmount: 150000
-  electionBackwardBlockCount: 20
-  es-namespace: browser_${profile}
-  foundationSubsidies:
-    '1': 6.2215742E7
-    '2': 5.5965742E7
-    '3': 4.9559492E7
-    '4': 4.2993086E7
-    '5': 3.626252E7
-    '6': 2.9363689E7
-    '7': 2.2292388E7
-    '8': 1.5044304E7
-    '9': 7615018.0
-  incentiveRateFromIssue: 0.8
-  initIssueAmount: 10000000000
-  keyBase: https://keybase.io/
-  keyBaseApi: _/api/1.0/user/lookup.json?key_suffix=
-  maxBlockGasLimit: 201600000
-  maxSettlePeriodCount4AnnualizedRateStat: 4
-  paging:
-    erc20-transaction:
-      pageCount: 250
-      pageSize: 2000
-  proposalPipNumTemplate: PIP-%s
-  proposalUrlTemplate: https://github.com/PlatONnetwork/PIPs/blob/master/PIPs/PIP-%s.md
-  txLogDecodeThreadNum: 200
-  valueUnit: LAT
-  web3j:
-    addresses: 192.168.120.151:7789,192.168.120.151:7790
-    protocol: WS

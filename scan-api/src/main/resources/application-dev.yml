@@ -1,8 +1,8 @@
 #1.1.4配置已经迁移到apollo，以下配置为模板
-profile: platon
+profile: alaya
 recaptchaUrl: https://recaptcha.net/recaptcha/api/siteverify?secret=6Lf8KLcUAAAAAPyHZfa7oeWjdMSyvgDHUUeYf01Z&response=%s
 server:
-  port: 40010
+  port: 50010
   servlet:
     context-path: /browser-server
   tomcat:
@@ -66,7 +66,6 @@ spring:
     password: platscan
   session:
     timeout: 1800
-version: 1.1.4
 xxl:
   job:
     accessToken: GOJ4hui834hGIhHIh33984dG3DER4Gh784u9dh
@@ -79,7 +78,7 @@ xxl:
       port: 9998
 jasypt:
   encryptor:
-    password: my123456
+    password: ${JASYPT_ENCRYPTOR_PASSWORD:}
 limit:
   num: 10
 logging:
@@ -98,36 +97,36 @@ mybatis:
   type-aliases-package: com.platon.browser.dao.entity
 output:
   file:
-    url: ./
+    url: /var/tmp
 platon:
-  addIssueRate: 0.025
-  addressPrefix: lat
-  chainId: 100
-  defaultStakingLockedAmount: 150000
+  addIssueRate: 0.05
+  addressPrefix: atp
+  chainId: 201018
+  defaultStakingLockedAmount: 10500
   electionBackwardBlockCount: 20
   es-namespace: browser_${profile}
   foundationSubsidies:
-    '1': 6.2215742E7
-    '2': 5.5965742E7
-    '3': 4.9559492E7
-    '4': 4.2993086E7
-    '5': 3.626252E7
-    '6': 2.9363689E7
-    '7': 2.2292388E7
-    '8': 1.5044304E7
-    '9': 7615018.0
-  incentiveRateFromIssue: 0.8
-  initIssueAmount: 10000000000
+    '1': 0
+    '2': 0
+    '3': 0
+    '4': 0
+    '5': 0
+    '6': 0
+    '7': 0
+    '8': 0
+    '9': 0
+  incentiveRateFromIssue: 0.4
+  initIssueAmount: 100000000
   keyBase: https://keybase.io/
   keyBaseApi: _/api/1.0/user/lookup.json?key_suffix=
   maxBlockGasLimit: 201600000
   maxSettlePeriodCount4AnnualizedRateStat: 4
-  proposalUrlTemplate: https://github.com/PlatONnetwork/PIPs/blob/master/PIPs/PIP-%s.md
+  proposalUrlTemplate: https://github.com/AlayaNetwork/AIPs/tree/master/Alaya/AIP-%s.md
   redis-namespace: browser:${profile}
   txLogDecodeThreadNum: 200
-  valueUnit: LAT
+  valueUnit: ATP
   web3j:
-    addresses: 192.168.120.151:7789,192.168.120.151:7790
+    addresses: 192.168.112.141:7789,192.168.112.141:7790
     protocol: WS
   zeroBlockNumber:
     wait-time: 60
