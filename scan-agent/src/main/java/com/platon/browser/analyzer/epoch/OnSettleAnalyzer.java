@@ -3,7 +3,6 @@ package com.platon.browser.analyzer.epoch;
 import cn.hutool.core.collection.CollUtil;
 import com.alibaba.fastjson.JSON;
 import com.platon.browser.bean.*;
-import com.platon.browser.cache.NetworkStatCache;
 import com.platon.browser.config.BlockChainConfig;
 import com.platon.browser.dao.custommapper.CustomGasEstimateLogMapper;
 import com.platon.browser.dao.custommapper.EpochBusinessMapper;
@@ -54,9 +53,6 @@ public class OnSettleAnalyzer {
 
     @Resource
     private GasEstimateLogMapper gasEstimateLogMapper;
-
-    @Resource
-    private NetworkStatCache networkStatCache;
 
     @Resource
     private RestrictingMinimumReleaseParamService restrictingMinimumReleaseParamService;
@@ -356,7 +352,6 @@ public class OnSettleAnalyzer {
                                                .replace("UNLOCKED_EPOCH", String.valueOf(settingEpoch))
                                                .replace("FREEZE_DURATION", staking.getZeroProduceFreezeDuration().toString());
         NodeOpt nodeOpt = ComplementNodeOpt.newInstance();
-        nodeOpt.setId(networkStatCache.getAndIncrementNodeOptSeq());
         nodeOpt.setNodeId(staking.getNodeId());
         nodeOpt.setType(Integer.valueOf(NodeOpt.TypeEnum.UNLOCKED.getCode()));
         nodeOpt.setBNum(block.getNum());
