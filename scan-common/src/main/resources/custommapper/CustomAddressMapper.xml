@@ -105,11 +105,37 @@
     <update id="batchUpdateAddressQty">
         <foreach collection="list" item="item" separator=";">
             update address set
-            tx_qty = tx_qty + #{item.txQty} ,
-            transfer_qty = transfer_qty + #{item.tokenQty} ,
-            delegate_qty = delegate_qty + #{item.delegateQty} ,
-            staking_qty = staking_qty + #{item.stakingQty} ,
-            proposal_qty = proposal_qty + #{item.proposalQty} where address = #{item.address}
+            tx_qty = #{item.txQty} ,
+            transfer_qty = #{item.transferQty} ,
+            delegate_qty = #{item.delegateQty} ,
+            staking_qty = #{item.stakingQty} ,
+            proposal_qty = #{item.proposalQty}
+            where address = #{item.address}
+        </foreach>
+    </update>
+
+    <update id="batchUpdateAddressInfo">
+        <foreach collection="list" item="item" separator=";">
+            UPDATE address t
+            SET
+            <if test="item.contractName!=null">
+                t.`contract_name` = #{item.contractName} ,
+            </if>
+            <if test="item.contractCreate!=null">
+                t.`contract_create` = #{item.contractCreate} ,
+            </if>
+            <if test="item.contractCreatehash!=null">
+                t.`contract_createHash` = #{item.contractCreatehash} ,
+            </if>
+            <if test="item.contractDestroyHash!=null">
+                t.`contract_destroy_hash` = #{item.contractDestroyHash} ,
+            </if>
+            <if test="item.contractBin!=null">
+                t.`contract_bin` = #{item.contractBin} ,
+            </if>
+            t.`type` = #{item.type}
+            WHERE
+            t.`address` = #{item.address}
         </foreach>
     </update>
 

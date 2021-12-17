@@ -2,36 +2,30 @@ package com.platon.browser.task;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.convert.Convert;
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.platon.browser.bean.AddressQty;
 import com.platon.browser.dao.custommapper.CustomAddressMapper;
 import com.platon.browser.dao.custommapper.StatisticBusinessMapper;
-import com.platon.browser.dao.entity.Address;
-import com.platon.browser.dao.entity.AddressExample;
-import com.platon.browser.dao.entity.PointLog;
+import com.platon.browser.dao.entity.*;
 import com.platon.browser.dao.mapper.AddressMapper;
 import com.platon.browser.dao.mapper.PointLogMapper;
+import com.platon.browser.dao.mapper.TxBakMapper;
 import com.platon.browser.elasticsearch.dto.Transaction;
-import com.platon.browser.service.elasticsearch.EsTransactionRepository;
-import com.platon.browser.service.elasticsearch.bean.ESResult;
-import com.platon.browser.service.elasticsearch.query.ESQueryBuilderConstructor;
-import com.platon.browser.service.elasticsearch.query.ESQueryBuilders;
 import com.platon.browser.task.bean.AddressStatistics;
+import com.platon.browser.utils.AddressUtil;
 import com.platon.browser.utils.AppStatusUtil;
+import com.platon.browser.utils.TaskUtil;
 import com.xxl.job.core.context.XxlJobHelper;
 import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 /**
@@ -62,16 +56,17 @@ public class AddressUpdateTask {
     private AddressMapper addressMapper;
 
     @Resource
-    private EsTransactionRepository esTransactionRepository;
-
-    @Resource
     private PointLogMapper pointLogMapper;
 
     @Resource
     private CustomAddressMapper customAddressMapper;
 
+    @Resource
+    private TxBakMapper txBakMapper;
+
     /**
      * 地址表信息补充
+     * 每5秒执行一次
      *
      * @param :
      * @return: void
@@ -208,6 +203,7 @@ public class AddressUpdateTask {
 
     /**
      * 更新地址交易数
+     * 每30秒执行一次
      *
      * @param :
      * @return: void
@@ -219,93 +215,37 @@ public class AddressUpdateTask {
         try {
             int pageSize = Convert.toInt(XxlJobHelper.getJobParam(), 500);
             PointLog pointLog = pointLogMapper.selectByPrimaryKey(2);
-            List<Transaction> transactionList = getTransactionList(Convert.toLong(pointLog.getPosition()), pageSize);
+            long oldPosition = Convert.toLong(pointLog.getPosition());
+            TaskUtil.console("当前页数为[{}]，断点为[{}]", pageSize, oldPosition);
+            List<TxBak> transactionList = getTransactionList(oldPosition, pageSize);
             if (CollUtil.isNotEmpty(transactionList)) {
-                Map<String, AddressQty> map = new HashMap();
-                transactionList.forEach(transaction -> {
-                    AddressQty contract = getAddressQtyFromMap(map, transaction.getContractAddress());
-                    AddressQty from = getAddressQtyFromMap(map, transaction.getFrom());
-                    AddressQty to = getAddressQtyFromMap(map, transaction.getTo());
-                    Set<Integer> txType = Stream.of(Transaction.TypeEnum.EVM_CONTRACT_CREATE.getCode(),
-                                                    Transaction.TypeEnum.WASM_CONTRACT_CREATE.getCode(),
-                                                    Transaction.TypeEnum.ERC20_CONTRACT_CREATE.getCode(),
-                                                    Transaction.TypeEnum.ERC721_CONTRACT_CREATE.getCode()).collect(Collectors.toSet());
-                    if (!txType.contains(transaction.getType())) {
-                        from.setTxQty(from.getTxQty() + 1);
-                        to.setTxQty(to.getTxQty() + 1);
+                String minId = CollUtil.getFirst(transactionList).getId().toString();
+                String maxId = CollUtil.getLast(transactionList).getId().toString();
+                pointLog.setPosition(maxId);
+                TaskUtil.console("查找到[{}]条交易,交易id为[{}-{}]", transactionList.size(), minId, maxId);
+                Map<String, AddressQty> map = checkAddress(transactionList);
+                TaskUtil.console("更新前的数据为{}", JSONUtil.toJsonStr(map.values()));
+                for (TxBak txBak : transactionList) {
+                    if (!AddressUtil.isAddrZero(txBak.getFromAddress())) {
+                        AddressQty from = map.get(txBak.getFromAddress());
+                        addQty(Transaction.TypeEnum.getEnum(txBak.getTxType()), from);
+                    } else {
+                        TaskUtil.console("交易[{}]from[{}]为零地址", txBak.getHash(), txBak.getFromAddress());
                     }
-                    switch (transaction.getTypeEnum()) {
-                        case TRANSFER:
-                            from.setTransferQty(from.getTransferQty() + 1);
-                            to.setTransferQty(to.getTransferQty() + 1);
-                            break;
-                        case EVM_CONTRACT_CREATE:
-                            break;
-                        case CONTRACT_EXEC:
-                            break;
-                        case WASM_CONTRACT_CREATE:
-                            break;
-                        case OTHERS:
-                            break;
-                        case MPC:
-                            break;
-                        case ERC20_CONTRACT_CREATE:
-                            break;
-                        case ERC20_CONTRACT_EXEC:
-                            break;
-                        case ERC721_CONTRACT_CREATE:
-                            from.setTxQty(from.getTxQty() + 1);
-                            if (ObjectUtil.isNotNull(contract)) {
-                                contract.setTxQty(contract.getTxQty() + 1);
-                            }
-                            break;
-                        case ERC721_CONTRACT_EXEC:
-                            break;
-                        case CONTRACT_EXEC_DESTROY:
-                            break;
-                        case STAKE_CREATE:
-                            break;
-                        case STAKE_MODIFY:
-                            break;
-                        case STAKE_INCREASE:
-                            break;
-                        case STAKE_EXIT:
-                            break;
-                        case DELEGATE_CREATE:
-                            break;
-                        case DELEGATE_EXIT:
-                            break;
-                        case PROPOSAL_TEXT:
-                            break;
-                        case PROPOSAL_UPGRADE:
-                            break;
-                        case PROPOSAL_PARAMETER:
-                            break;
-                        case PROPOSAL_VOTE:
-                            break;
-                        case VERSION_DECLARE:
-                            from.setProposalQty(from.getProposalQty() + 1);
-                            to.setProposalQty(to.getProposalQty() + 1);
-                            break;
-                        case PROPOSAL_CANCEL:
-                            break;
-                        case REPORT:
-                            from.setStakingQty(from.getStakingQty() + 1);
-                            to.setStakingQty(to.getStakingQty() + 1);
-                            break;
-                        case RESTRICTING_CREATE:
-                            break;
-                        case CLAIM_REWARDS:
-                            from.setDelegateQty(from.getDelegateQty() + 1);
-                            to.setDelegateQty(to.getDelegateQty() + 1);
-                            break;
-                        default:
-                            break;
+                    if (!AddressUtil.isAddrZero(txBak.getToAddress())) {
+                        AddressQty to = map.get(txBak.getToAddress());
+                        addQty(Transaction.TypeEnum.getEnum(txBak.getTxType()), to);
+                    } else {
+                        TaskUtil.console("交易[{}]to[{}]为零地址", txBak.getHash(), txBak.getToAddress());
                     }
-                });
-                customAddressMapper.batchUpdateAddressQty(CollUtil.newArrayList(map.values()));
-                pointLog.setPosition(CollUtil.getLast(transactionList).getId().toString());
+                }
+                List<AddressQty> list = CollUtil.newArrayList(map.values());
+                customAddressMapper.batchUpdateAddressQty(list);
                 pointLogMapper.updateByPrimaryKeySelective(pointLog);
+                TaskUtil.console("更新后的数据为{}", JSONUtil.toJsonStr(map.values()));
+                TaskUtil.console("更新地址交易数，断点(交易id)为[{}]->[{}]，更新[{}]个地址", oldPosition, pointLog.getPosition(), list.size());
+            } else {
+                XxlJobHelper.handleSuccess(StrUtil.format("最新断点[{}]未找到交易列表，更新地址交易数完成", oldPosition));
             }
         } catch (Exception e) {
             log.error("更新地址交易数异常", e);
@@ -313,17 +253,124 @@ public class AddressUpdateTask {
         }
     }
 
-    private AddressQty getAddressQtyFromMap(Map<String, AddressQty> map, String address) {
-        if (StrUtil.isBlank(address)) {
-            return null;
+    /**
+     * 地址增加交易数
+     *
+     * @param typeEnum:
+     * @param addressQty:
+     * @return: void
+     * @date: 2021/12/15
+     */
+    private void addQty(Transaction.TypeEnum typeEnum, AddressQty addressQty) {
+        addressQty.setTxQty(addressQty.getTxQty() + 1);
+        switch (typeEnum) {
+            case TRANSFER:
+                addressQty.setTransferQty(addressQty.getTransferQty() + 1);
+                break;
+            case EVM_CONTRACT_CREATE:
+                break;
+            case CONTRACT_EXEC:
+                break;
+            case WASM_CONTRACT_CREATE:
+                break;
+            case OTHERS:
+                break;
+            case MPC:
+                break;
+            case ERC20_CONTRACT_CREATE:
+                break;
+            case ERC20_CONTRACT_EXEC:
+                break;
+            case ERC721_CONTRACT_CREATE:
+                break;
+            case ERC721_CONTRACT_EXEC:
+                break;
+            case CONTRACT_EXEC_DESTROY:
+                break;
+            case STAKE_CREATE:
+                addressQty.setStakingQty(addressQty.getStakingQty() + 1);
+                break;
+            case STAKE_MODIFY:
+                addressQty.setStakingQty(addressQty.getStakingQty() + 1);
+                break;
+            case STAKE_INCREASE:
+                addressQty.setStakingQty(addressQty.getStakingQty() + 1);
+                break;
+            case STAKE_EXIT:
+                addressQty.setStakingQty(addressQty.getStakingQty() + 1);
+                break;
+            case DELEGATE_CREATE:
+                addressQty.setDelegateQty(addressQty.getDelegateQty() + 1);
+                break;
+            case DELEGATE_EXIT:
+                addressQty.setDelegateQty(addressQty.getDelegateQty() + 1);
+                break;
+            case PROPOSAL_TEXT:
+                addressQty.setProposalQty(addressQty.getProposalQty() + 1);
+                break;
+            case PROPOSAL_UPGRADE:
+                addressQty.setProposalQty(addressQty.getProposalQty() + 1);
+                break;
+            case PROPOSAL_PARAMETER:
+                addressQty.setProposalQty(addressQty.getProposalQty() + 1);
+                break;
+            case PROPOSAL_VOTE:
+                addressQty.setProposalQty(addressQty.getProposalQty() + 1);
+                break;
+            case VERSION_DECLARE:
+                addressQty.setProposalQty(addressQty.getProposalQty() + 1);
+                break;
+            case PROPOSAL_CANCEL:
+                addressQty.setProposalQty(addressQty.getProposalQty() + 1);
+                break;
+            case REPORT:
+                break;
+            case RESTRICTING_CREATE:
+                break;
+            case CLAIM_REWARDS:
+                addressQty.setDelegateQty(addressQty.getDelegateQty() + 1);
+                break;
+            default:
+                break;
         }
-        if (map.containsKey(address)) {
-            return map.get(address);
-        } else {
-            AddressQty addressQty = AddressQty.builder().address(address).txQty(0).tokenQty(0).transferQty(0).delegateQty(0).stakingQty(0).proposalQty(0).build();
-            map.put(address, addressQty);
-            return addressQty;
+    }
+
+    /**
+     * 校验地址
+     *
+     * @param transactionList:
+     * @return: java.util.Map<java.lang.String, com.platon.browser.bean.AddressQty>
+     * @date: 2021/12/15
+     */
+    private Map<String, AddressQty> checkAddress(List<TxBak> transactionList) throws Exception {
+        Set<String> addressSet = new HashSet<>();
+        Set<String> froms = transactionList.stream().map(TxBak::getFromAddress).filter(from -> !AddressUtil.isAddrZero(from)).collect(Collectors.toSet());
+        Set<String> tos = transactionList.stream().map(TxBak::getToAddress).filter(to -> !AddressUtil.isAddrZero(to)).collect(Collectors.toSet());
+        addressSet.addAll(froms);
+        addressSet.addAll(tos);
+        AddressExample example = new AddressExample();
+        example.createCriteria().andAddressIn(new ArrayList<>(addressSet));
+        List<Address> addressList = addressMapper.selectByExample(example);
+        if (addressList.size() != addressSet.size()) {
+            Set<String> address1 = addressList.stream().map(Address::getAddress).collect(Collectors.toSet());
+            String msg = StrUtil.format("交易解出来的地址在数据库查找不到，缺失的地址为{}", JSONUtil.toJsonStr(CollUtil.subtractToList(addressSet, address1)));
+            XxlJobHelper.log(msg);
+            log.error(msg);
+            throw new Exception("更新地址交易数异常");
         }
+        Map<String, AddressQty> map = new HashMap();
+        addressList.forEach(address -> {
+            AddressQty addressQty = AddressQty.builder()
+                                              .address(address.getAddress())
+                                              .txQty(address.getTxQty())
+                                              .transferQty(address.getTransferQty())
+                                              .delegateQty(address.getDelegateQty())
+                                              .stakingQty(address.getStakingQty())
+                                              .proposalQty(address.getProposalQty())
+                                              .build();
+            map.put(address.getAddress(), addressQty);
+        });
+        return map;
     }
 
     /**
@@ -334,17 +381,13 @@ public class AddressUpdateTask {
      * @return: java.util.List<com.platon.browser.elasticsearch.dto.Transaction>
      * @date: 2021/12/6
      */
-    private List<Transaction> getTransactionList(long maxId, int pageSize) throws IOException {
+    private List<TxBak> getTransactionList(long maxId, int pageSize) throws Exception {
         try {
-            ESQueryBuilderConstructor constructor = new ESQueryBuilderConstructor();
-            constructor.setAsc("id");
-            constructor.setResult(new String[]{"seq", "id", "num", "hash", "type", "from", "to", "contractAddress"});
-            ESQueryBuilders esQueryBuilders = new ESQueryBuilders();
-            esQueryBuilders.listBuilders().add(QueryBuilders.rangeQuery("id").gt(maxId));
-            constructor.must(esQueryBuilders);
-            constructor.setUnmappedType("long");
-            ESResult<Transaction> queryResultFromES = esTransactionRepository.search(constructor, Transaction.class, 1, pageSize);
-            return queryResultFromES.getRsData();
+            TxBakExample example = new TxBakExample();
+            example.createCriteria().andIdGreaterThan(maxId).andIdLessThanOrEqualTo(maxId + pageSize);
+            example.setOrderByClause("id");
+            List<TxBak> list = txBakMapper.selectByExample(example);
+            return list;
         } catch (Exception e) {
             log.error("获取交易列表异常", e);
             throw e;
