@@ -61,6 +61,13 @@ public class HomeController {
         });
     }
 
+    /**
+     * 出块趋势
+     *
+     * @param
+     * @return reactor.core.publisher.Mono<com.platon.browser.response.BaseResp < com.platon.browser.response.home.BlockStatisticNewResp>>
+     * @date 2021/5/25
+     */
     @SubscribeMapping("topic/block/statistic/new")
     @PostMapping("home/blockStatistic")
     public Mono<BaseResp<BlockStatisticNewResp>> blockStatisticNew() {

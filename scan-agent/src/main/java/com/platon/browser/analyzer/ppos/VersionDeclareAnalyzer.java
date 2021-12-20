@@ -22,6 +22,7 @@ public class VersionDeclareAnalyzer extends PPOSAnalyzer<NodeOpt> {
 
     @Resource
     private NetworkStatCache networkStatCache;
+
     /**
      * 版本声明分析
      *
