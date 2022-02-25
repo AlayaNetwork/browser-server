@@ -1,13 +1,14 @@
 package com.platon.browser.analyzer.statistic;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.platon.browser.analyzer.TransactionAnalyzer;
 import com.platon.browser.bean.CollectionEvent;
 import com.platon.browser.bean.CustomAddress;
 import com.platon.browser.bean.EpochMessage;
 import com.platon.browser.cache.AddressCache;
-import com.platon.browser.dao.custommapper.CustomAddressMapper;
 import com.platon.browser.dao.custommapper.StatisticBusinessMapper;
 import com.platon.browser.dao.entity.Address;
 import com.platon.browser.dao.entity.AddressExample;
@@ -17,6 +18,7 @@ import com.platon.browser.enums.ContractTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -36,9 +38,7 @@ public class StatisticsAddressAnalyzer {
     @Resource
     private AddressMapper addressMapper;
 
-    @Resource
-    private CustomAddressMapper customAddressMapper;
-
+    @Transactional(rollbackFor = {Exception.class, Error.class})
     public void analyze(CollectionEvent event, Block block, EpochMessage epochMessage) {
         long startTime = System.currentTimeMillis();
         log.debug("block({}),transactions({}),consensus({}),settlement({}),issue({})",
@@ -92,32 +92,52 @@ public class StatisticsAddressAnalyzer {
                     });
                 }
             });
-            itemFromDb.forEach(address -> {
+            List<Address> newItemFromDb = new ArrayList<>();
+            for (Address address : itemFromDb) {
+                Boolean flag = false;
+                Address indb = new Address();
+                indb.setAddress(address.getAddress());
                 Address addCache = addressCache.getAddress(address.getAddress());
                 // 合约名称
-                String contractName = address.getContractName();
-                if (StringUtils.isBlank(contractName)) contractName = addCache.getContractName();
-                address.setContractName(contractName);
+                String contractName = StrUtil.emptyToDefault(address.getContractName(), addCache.getContractName());
+                if (StrUtil.isNotBlank(contractName)) {
+                    indb.setContractName(contractName);
+                    flag = true;
+                }
                 // 合约创建人，数据库的值优先
-                String contractCreate = address.getContractCreate();
-                if (StringUtils.isBlank(contractCreate)) contractCreate = addCache.getContractCreate();
-                address.setContractCreate(contractCreate);
+                String contractCreate = StrUtil.emptyToDefault(address.getContractCreate(), addCache.getContractCreate());
+                if (StrUtil.isNotBlank(contractCreate)) {
+                    indb.setContractCreate(contractCreate);
+                    flag = true;
+                }
                 // 合约创建交易hash，数据库的值优先
-                String contractCreateHash = address.getContractCreatehash();
-                if (StringUtils.isBlank(contractCreateHash)) contractCreateHash = addCache.getContractCreatehash();
-                address.setContractCreatehash(contractCreateHash);
+                String contractCreateHash = StrUtil.emptyToDefault(address.getContractCreatehash(), addCache.getContractCreatehash());
+                if (StrUtil.isNotBlank(contractCreateHash)) {
+                    indb.setContractCreatehash(contractCreateHash);
+                    flag = true;
+                }
                 // 合约销毁交易hash，数据库的值优先
-                String contractDestroyHash = address.getContractDestroyHash();
-                if (StringUtils.isBlank(contractDestroyHash)) contractDestroyHash = addCache.getContractDestroyHash();
-                address.setContractDestroyHash(contractDestroyHash);
+                String contractDestroyHash = StrUtil.emptyToDefault(address.getContractDestroyHash(), addCache.getContractDestroyHash());
+                if (StrUtil.isNotBlank(contractDestroyHash)) {
+                    indb.setContractDestroyHash(contractDestroyHash);
+                    flag = true;
+                }
                 // 合约bin代码数据
-                String contractBin = address.getContractBin();
-                if (StringUtils.isBlank(contractBin)) contractBin = addCache.getContractBin();
-                address.setContractBin(contractBin);
-            });
-            int i = customAddressMapper.batchUpdateAddressInfo(itemFromDb);
-            if (i > 0) {
-                log.info("批量更新地址信息成功，成功数:{}，数据为：{}", itemFromDb.size(), JSONUtil.toJsonStr(itemFromDb));
+                String contractBin = StrUtil.emptyToDefault(address.getContractBin(), addCache.getContractBin());
+                if (StrUtil.isNotBlank(contractBin)) {
+                    indb.setContractBin(contractBin);
+                    flag = true;
+                }
+                if (flag) {
+                    newItemFromDb.add(indb);
+                }
+            }
+            if (CollUtil.isNotEmpty(newItemFromDb)) {
+                for (Address address : newItemFromDb) {
+                    // 批量更新经常发生异常，采用单个更新，服务器压力偏大，但每次更新的地址数不多，故压力还好
+                    addressMapper.updateByPrimaryKeySelective(address);
+                }
+                log.info("批量更新地址信息成功，成功数:{}，数据为：{}", itemFromDb.size(), JSONUtil.toJsonStr(newItemFromDb));
             }
         }
         // 对比缓存和数据的数据，取出缓存中新增的地址
