@@ -17,4 +17,4 @@ logging:
       clean-history-on-start: true
 spring:
   profiles:
-    active: platon
+    active: alaya
