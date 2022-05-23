@@ -1,6 +1,6 @@
 -- 全量脚本
-CREATE DATABASE IF NOT EXISTS `scan_platon` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE `scan_platon`;
+CREATE DATABASE IF NOT EXISTS `scan_alaya` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `scan_alaya`;
 
 DROP TABLE IF EXISTS `address`;
 CREATE TABLE `address` (
@@ -12,7 +12,6 @@ CREATE TABLE `address` (
                            `delegate_value` decimal(65,0) NOT NULL DEFAULT '0' COMMENT '委托的金额(von)',
                            `redeemed_value` decimal(65,0) NOT NULL DEFAULT '0' COMMENT '赎回中的质押金额(von)',
                            `tx_qty` int(11) NOT NULL DEFAULT '0' COMMENT '交易总数',
-                           `token_qty` int(11) NOT NULL DEFAULT '0' COMMENT 'erc20 token对应的交易数',
                            `transfer_qty` int(11) NOT NULL DEFAULT '0' COMMENT '转账交易总数',
                            `delegate_qty` int(11) NOT NULL DEFAULT '0' COMMENT '委托交易总数',
                            `staking_qty` int(11) NOT NULL DEFAULT '0' COMMENT '质押交易总数',
@@ -482,7 +481,7 @@ CREATE TABLE `internal_address` (
 -- 初始化数据
 -- 还有部分基金会地址由运维手工导入
 INSERT INTO `internal_address` (`address`,`type`)
-VALUES ('lat1zqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7pn3ep', 1),
-       ('lat1zqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzsjx8h7', 2),
-       ('lat1zqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqrdyjj2v', 3),
-       ('lat1zqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqxlcypcy', 6);
+VALUES ('atp1zqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp8h9fxw', 1),
+       ('atp1zqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzfyslg3', 2),
+       ('atp1zqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqr5jy24r', 3),
+       ('atp1zqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqxxwje8t', 6);

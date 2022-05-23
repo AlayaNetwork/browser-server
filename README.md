@@ -53,4 +53,25 @@ gradlew clean buildTar -x test -b scan-api/build.gradle
 MySQL 5.7  
 redis 4.0 
 elasticsearch 7.4 
+apollo 1.9.1
+xxljob 2.3.0
+```
+
+## About apollo startup
+
+```bash
+scan-agent,scan-api,scan-job
+1-about apollo:application-apollo.yml
+2-no apollo:application-alaya.yml
+Choose one of the above two configuration methods
+```
+
+## scan community team process
+```bash
+1. The repository administrator creates a feature branch (accessed based on the develop branch), feature-xxx, for the community development team.
+2. The community development team forks (feature-xxx) to its own repository after the self-test on development is completed.
+3. The community development team submits pr to the official feature-xxx (merge the modification of the official develop branch before submission)
+4. Repository administrator merges feature-xxx into one of the proposed branch, e.g. feature-alaya-1.1.5
+5. Testers verify the functions of the proposed branch feature-alaya-1.1.5. Issue the problem if any 
+6. After the test is completed, merge it into the develop branch
 ```

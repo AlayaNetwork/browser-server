@@ -3,7 +3,6 @@ package com.platon.browser.bean;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.platon.browser.utils.HexUtil;
 import com.platon.browser.utils.ChainVersionUtil;
-import jnr.ffi.annotations.In;
 
 import java.math.BigInteger;
 
@@ -20,7 +19,7 @@ public class NodeVersion {
     @JSONField(name = "ProgramVersion")
     private Integer bigVersion;
     public void setBigVersion(String bigVersion){
-        this.programVersion=Integer.valueOf(bigVersion);
+        this.programVersion = Integer.valueOf(bigVersion);
         this.bigVersion = ChainVersionUtil.toBigVersion(new BigInteger(bigVersion)).intValue();
     }
     @JSONField(name = "NodeId")
@@ -32,7 +31,7 @@ public class NodeVersion {
 		return bigVersion;
 	}
 	public void setBigVersion(Integer bigVersion) {
-        this.programVersion=bigVersion;
+        this.programVersion = bigVersion;
 		this.bigVersion = ChainVersionUtil.toBigVersion(new BigInteger(String.valueOf(bigVersion))).intValue();
 	}
 	public String getNodeId() {
