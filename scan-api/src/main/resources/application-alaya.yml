@@ -163,3 +163,7 @@ limit:
 output:
   file:
     url: /var/tmp
+apollo:
+  bootstrap:
+    # 是否开启 Apollo
+    enabled: false
