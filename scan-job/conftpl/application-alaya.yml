@@ -115,9 +115,14 @@ xxl:
     executor:
       #执行器AppName
       appname: alaya-scan-job
+      ip: 192.168.21.114
       #执行器端口号
       port: 9997
       #执行器运行日志文件存储磁盘路径
       logpath: ./logs/jobhandler
       #执行器日志文件保存天数
       logretentiondays: 90
+apollo:
+  bootstrap:
+    # 是否开启 Apollo
+    enabled: false
