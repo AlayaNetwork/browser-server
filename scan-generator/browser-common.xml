@@ -23,27 +23,31 @@
             <property name="suppressAllComments" value="true"/>
         </commentGenerator>
         <jdbcConnection driverClass="com.mysql.jdbc.Driver"
-                        connectionURL="jdbc:mysql://192.168.9.191:3306/scan_platonhyp?useUnicode=true&amp;characterEncoding=utf-8&amp;useSSL=false"
+                        connectionURL="jdbc:mysql://192.168.9.191:3306/scan_alaya?useUnicode=true&amp;characterEncoding=utf-8&amp;useSSL=false"
                         userId="platon"
                         password="platon"/>
 
-        <javaModelGenerator targetPackage="com.platon.browser.dao.entity" targetProject="C:/project/browser-server/scan-common/src/main/java">
+        <javaModelGenerator targetPackage="com.platon.browser.dao.entity" targetProject="C:/project/Alaya/browser-server/scan-common/src/main/java">
             <property name="enableSubPackages" value="true"/>
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
 
-       <sqlMapGenerator targetPackage="mapper"
-                         targetProject="C:/project/browser-server/scan-common/src/main/resources">
+        <sqlMapGenerator targetPackage="mapper"
+                         targetProject="C:/project/Alaya/browser-server/scan-common/src/main/resources">
             <property name="enableSubPackages" value="true"/>
         </sqlMapGenerator>
 
         <javaClientGenerator targetPackage="com.platon.browser.dao.mapper"
-                             targetProject="C:/project/browser-server/scan-common/src/main/java" type="XMLMAPPER">
+                             targetProject="C:/project/Alaya/browser-server/scan-common/src/main/java" type="XMLMAPPER">
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
-        <table tableName="token_inventory" domainObjectName="TokenInventory">
+        <table tableName="node" domainObjectName="Node">
             <columnRenamingRule searchString="^D_" replaceString=""/>
         </table>
+        <table tableName="staking" domainObjectName="Staking">
+            <columnRenamingRule searchString="^D_" replaceString=""/>
+        </table>
+
     </context>
 </generatorConfiguration>

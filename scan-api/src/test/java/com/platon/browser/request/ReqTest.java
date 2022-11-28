@@ -28,7 +28,7 @@ public class ReqTest {
 
     /**
      * 测试开始前，设置相关行为属性
-     * 
+     *
      * @throws IOException
      * @throws BeanCreateOrUpdateException
      */
@@ -37,9 +37,9 @@ public class ReqTest {
         String packageName = ReqTest.class.getPackage().getName();
         Set<Class<?>> classSet = ClassUtil.getClasses(packageName);
         classSet.stream()
-            .filter(clazz -> !clazz.getName().endsWith("Test") && !clazz.getName().endsWith("Column")
-                && !clazz.getName().endsWith("Criterion") && !clazz.getName().endsWith("GeneratedCriteria"))
-            .forEach(this.target::add);
+                .filter(clazz -> !clazz.getName().endsWith("Test") && !clazz.getName().endsWith("Column")
+                        && !clazz.getName().endsWith("Criterion") && !clazz.getName().endsWith("GeneratedCriteria"))
+                .forEach(this.target::add);
     }
 
     @Test
@@ -80,7 +80,7 @@ public class ReqTest {
                                 continue;
                             }
                             if (types[i].getTypeName().equals("byte[]")) {
-                                args[i] = new byte[] {1};
+                                args[i] = new byte[]{1};
                                 continue;
                             }
                             args[i] = mock(types[i]);
@@ -104,7 +104,7 @@ public class ReqTest {
         QueryHolderTokenListReq queryHolderTokenListReq = new QueryHolderTokenListReq();
         assertNotNull(queryHolderTokenListReq);
 
-        QueryTokenHolderListReq queryTokenHolderListReq = new QueryTokenHolderListReq("");
+        QueryTokenHolderListReq queryTokenHolderListReq = new QueryTokenHolderListReq();
         assertNotNull(queryTokenHolderListReq);
 
         QueryTokenTransferRecordListReq queryTokenTransferRecordListReq = new QueryTokenTransferRecordListReq();

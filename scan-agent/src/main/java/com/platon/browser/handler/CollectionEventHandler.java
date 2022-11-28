@@ -36,7 +36,8 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Component
-public class CollectionEventHandler implements EventHandler<CollectionEvent> {
+public class CollectionEventHandler
+        implements EventHandler<CollectionEvent> {
 
     @Resource
     private PPOSService pposService;
@@ -196,9 +197,16 @@ public class CollectionEventHandler implements EventHandler<CollectionEvent> {
             initNodeCache();
             List<String> txHashList = CollUtil.newArrayList();
             if (CollUtil.isNotEmpty(event.getBlock().getOriginTransactions())) {
-                txHashList = event.getBlock().getOriginTransactions().stream().map(com.platon.protocol.core.methods.response.Transaction::getHash).collect(Collectors.toList());
+                txHashList = event.getBlock()
+                                  .getOriginTransactions()
+                                  .stream()
+                                  .map(com.platon.protocol.core.methods.response.Transaction::getHash)
+                                  .collect(Collectors.toList());
             }
-            log.warn("重试次数[{}],节点重新初始化，该区块[{}]交易列表{}重复处理", retryCount.get(), event.getBlock().getNum(), JSONUtil.toJsonStr(txHashList));
+            log.warn("重试次数[{}],节点重新初始化，该区块[{}]交易列表{}重复处理",
+                     retryCount.get(),
+                     event.getBlock().getNum(),
+                     JSONUtil.toJsonStr(txHashList));
         }
         return copyEvent;
     }

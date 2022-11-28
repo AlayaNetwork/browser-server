@@ -24,16 +24,14 @@ import java.math.BigInteger;
  **/
 @Slf4j
 @Service
-public class ProposalCancelAnalyzer extends PPOSAnalyzer<NodeOpt> {
+public class ProposalCancelAnalyzer
+        extends PPOSAnalyzer<NodeOpt> {
 
     @Resource
     private BlockChainConfig chainConfig;
 
     @Resource
     private ProposalBusinessMapper proposalBusinessMapper;
-
-    @Resource
-    private NetworkStatCache networkStatCache;
 
     /**
      * 提交取消提案
@@ -55,25 +53,27 @@ public class ProposalCancelAnalyzer extends PPOSAnalyzer<NodeOpt> {
         long startTime = System.currentTimeMillis();
 
         ProposalCancel businessParam = ProposalCancel.builder()
-                .nodeId(txParam.getVerifier())
-                .pIDID(txParam.getPIDID())
-                .url(String.format(chainConfig.getProposalUrlTemplate(), txParam.getPIDID()))
-                .pipNum(String.format(chainConfig.getProposalPipNumTemplate(), txParam.getPIDID()))
-                .endVotingBlock(RoundCalculation.endBlockNumCal(tx.getNum().toString(), txParam.getEndVotingRound(), chainConfig).toBigInteger())
-                .topic(CustomProposal.QUERY_FLAG)
-                .description(CustomProposal.QUERY_FLAG)
-                .txHash(tx.getHash())
-                .blockNumber(BigInteger.valueOf(tx.getNum()))
-                .timestamp(tx.getTime())
-                .stakingName(txParam.getNodeName())
-                .canceledId(txParam.getCanceledProposalID())
-                .build();
+                                                     .nodeId(txParam.getVerifier())
+                                                     .pIDID(txParam.getPIDID())
+                                                     .url(String.format(chainConfig.getProposalUrlTemplate(), txParam.getPIDID()))
+                                                     .pipNum(String.format(chainConfig.getProposalPipNumTemplate(), txParam.getPIDID()))
+                                                     .endVotingBlock(RoundCalculation.endBlockNumCal(tx.getNum().toString(),
+                                                                                                     txParam.getEndVotingRound(),
+                                                                                                     chainConfig).toBigInteger())
+                                                     .topic(CustomProposal.QUERY_FLAG)
+                                                     .description(CustomProposal.QUERY_FLAG)
+                                                     .txHash(tx.getHash())
+                                                     .blockNumber(BigInteger.valueOf(tx.getNum()))
+                                                     .timestamp(tx.getTime())
+                                                     .stakingName(txParam.getNodeName())
+                                                     .canceledId(txParam.getCanceledProposalID())
+                                                     .build();
 
         String desc = NodeOpt.TypeEnum.PROPOSALS.getTpl()
-                .replace("ID", txParam.getPIDID())
-                .replace("TITLE", businessParam.getTopic())
-                .replace("TYPE", String.valueOf(CustomProposal.TypeEnum.CANCEL.getCode()))
-                .replace("VERSION", "");
+                                                .replace("ID", txParam.getPIDID())
+                                                .replace("TITLE", businessParam.getTopic())
+                                                .replace("TYPE", String.valueOf(CustomProposal.TypeEnum.CANCEL.getCode()))
+                                                .replace("VERSION", "");
 
         proposalBusinessMapper.cancel(businessParam);
 

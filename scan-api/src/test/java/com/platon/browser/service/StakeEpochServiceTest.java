@@ -8,22 +8,21 @@ import com.platon.browser.bean.DelegationAddress;
 import com.platon.browser.bean.DelegationStaking;
 import com.platon.browser.bean.StakingBO;
 import com.platon.browser.client.PlatOnClient;
-import com.platon.browser.dao.entity.Address;
-import com.platon.browser.dao.entity.NetworkStat;
-import com.platon.browser.dao.entity.Node;
 import com.platon.browser.dao.custommapper.CustomDelegationMapper;
 import com.platon.browser.dao.custommapper.CustomNodeMapper;
 import com.platon.browser.dao.custommapper.CustomStakingMapper;
+import com.platon.browser.dao.entity.Address;
+import com.platon.browser.dao.entity.NetworkStat;
+import com.platon.browser.dao.entity.Node;
 import com.platon.browser.dao.mapper.AddressMapper;
-import com.platon.browser.dao.mapper.NodeMapper;
-import com.platon.browser.service.elasticsearch.EsNodeOptRepository;
-import com.platon.browser.service.elasticsearch.bean.ESResult;
 import com.platon.browser.elasticsearch.dto.NodeOpt;
 import com.platon.browser.request.staking.*;
 import com.platon.browser.response.RespPage;
 import com.platon.browser.response.staking.DelegationListByAddressResp;
 import com.platon.browser.response.staking.DelegationListByStakingResp;
 import com.platon.browser.response.staking.StakingStatisticNewResp;
+import com.platon.browser.service.elasticsearch.EsNodeOptRepository;
+import com.platon.browser.service.elasticsearch.bean.ESResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,7 +31,6 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import javax.annotation.Resource;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -46,7 +44,8 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
-public class StakeEpochServiceTest extends ApiTestMockBase {
+public class StakeEpochServiceTest
+        extends ApiTestMockBase {
 
     @Mock
     private CustomStakingMapper customStakingMapper;
@@ -133,7 +132,7 @@ public class StakeEpochServiceTest extends ApiTestMockBase {
         Address address = new Address();
         address.setType(1);
         when(addressMapper.selectByPrimaryKey(any())).thenReturn(address);
-        NetworkStat networkStatRedis =new NetworkStat();
+        NetworkStat networkStatRedis = new NetworkStat();
         networkStatRedis.setCurNumber(1000L);
         networkStatRedis.setNodeId("sfadafw55");
         when(statisticCacheService.getNetworkStatCache()).thenReturn(networkStatRedis);
@@ -180,7 +179,7 @@ public class StakeEpochServiceTest extends ApiTestMockBase {
 
     @Test
     public void testStakingStatisticNew() {
-        StakingBO bo =new StakingBO();
+        StakingBO bo = new StakingBO();
         bo.setStakingDenominator(BigDecimal.ONE);
         bo.setTotalStakingValue(BigDecimal.ONE);
         when(commonService.getTotalStakingValueAndStakingDenominator(any())).thenReturn(bo);

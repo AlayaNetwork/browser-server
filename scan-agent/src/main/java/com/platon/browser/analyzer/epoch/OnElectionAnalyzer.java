@@ -172,9 +172,12 @@ public class OnElectionAnalyzer {
                     // 更新解质押到账需要经过的结算周期数
                     BigInteger unStakeFreezeDuration = stakeEpochService.getUnStakeFreeDuration();
                     // 低出块不需要理会对比提案的生效周期
-                    BigInteger unStakeEndBlock = stakeEpochService.getUnStakeEndBlock(staking.getNodeId(), event.getEpochMessage().getSettleEpochRound(), false);
+                    BigInteger unStakeEndBlock = stakeEpochService.getUnStakeEndBlock(staking.getNodeId(),
+                                                                                      event.getEpochMessage().getSettleEpochRound(),
+                                                                                      false);
                     election.setUnStakeFreezeDuration(unStakeFreezeDuration.intValue());
                     election.setUnStakeEndBlock(unStakeEndBlock);
+                    customStaking.setLeaveNum(block.getNum());
                     exitingNodes.add(customStaking);
                     log.info("块高[{}]结算周期[{}]共识周期[{}]，节点[{}]扣除处罚金额后【犹豫+锁定】质押金小于质押门槛，节点置为退出中",
                              event.getBlock().getNum(),
@@ -182,6 +185,7 @@ public class OnElectionAnalyzer {
                              event.getEpochMessage().getConsensusEpochRound(),
                              customStaking.getNodeId());
                 } else {
+                    customStaking.setLeaveNum(block.getNum());
                     customStaking.setStatus(StatusEnum.LOCKED.getCode());
                     // 锁定节点
                     if (customStaking.getStakingHes().compareTo(slashAmount) >= 0) {
